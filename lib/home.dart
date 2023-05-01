@@ -3,6 +3,8 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:path/path.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -14,20 +16,34 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> {
   File? file;
 
+
+
   Future pickImage(ImageSource source) async {
     try {
       final image = await ImagePicker().pickImage(source: source);
       if (image == null) return;
 
-      final temproraryImage = File(image.path);
+      // final temproraryImage = File(image.path);
+      // final imagePath = image.path;
+      final permanentImage = await saveImagepermanently(image.path);
 
       setState(() {
-        file = temproraryImage;
+        file = permanentImage;
       });
     } on PlatformException catch (e) {
       debugPrint("failed to open image $e");
     }
   }
+
+  Future<File> saveImagepermanently(String imagePath) async {
+    final directory = await getApplicationDocumentsDirectory();
+    final name = basename(imagePath);
+    final file = File('${directory.path}/$name');
+    return File(imagePath).copy(file.path);
+  }
+
+
+ 
 
   @override
   Widget build(BuildContext context) {
@@ -38,15 +54,20 @@ class _HomeState extends State<Home> {
             height: 150,
           ),
           file != null
-              ? Image.file(
-                  file!,
-                  height: 260,
-                  width: 260,
-                  // fit: BoxFit.cover,
+              ? ClipOval(
+                  child: Image.file(
+                    file!,
+                    height: 160,
+                    width: 160,
+                    fit: BoxFit.cover,
+                  ),
                 )
               : const FlutterLogo(
                   size: 160,
                 ),
+          const SizedBox(
+            height: 60,
+          ),
           const Center(
             child: Text(
               "Image picker",
@@ -86,7 +107,9 @@ class _HomeState extends State<Home> {
                 minimumSize:
                     MaterialStateProperty.all<Size>(const Size(150, 50)),
               ),
-              onPressed: () {},
+              onPressed: () {
+                pickImage(ImageSource.camera);
+              },
               child: Row(
                 children: const [
                   Icon(Icons.camera_alt),
@@ -100,14 +123,4 @@ class _HomeState extends State<Home> {
           ),
         ]));
   }
-
-  // call() async {
-  //   final image = await ImagePicker().pickImage(source: ImageSource.gallery);
-  //   if (image == null) return;
-  //   final temporaryImage = File(image.path);
-
-  //   setState(() {
-  //     file = temporaryImage;
-  //   });
-  // }
 }
