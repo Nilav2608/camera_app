@@ -16,15 +16,11 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> {
   File? file;
 
-
-
   Future pickImage(ImageSource source) async {
     try {
       final image = await ImagePicker().pickImage(source: source);
       if (image == null) return;
 
-      // final temproraryImage = File(image.path);
-      // final imagePath = image.path;
       final permanentImage = await saveImagepermanently(image.path);
 
       setState(() {
@@ -41,9 +37,6 @@ class _HomeState extends State<Home> {
     final file = File('${directory.path}/$name');
     return File(imagePath).copy(file.path);
   }
-
-
- 
 
   @override
   Widget build(BuildContext context) {
