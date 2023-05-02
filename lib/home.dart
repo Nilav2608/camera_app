@@ -20,7 +20,7 @@ class _HomeState extends State<Home> {
     try {
       final image = await ImagePicker().pickImage(source: source);
       if (image == null) return;
-
+      print("Image path ${image.path}");
       final permanentImage = await saveImagepermanently(image.path);
 
       setState(() {
